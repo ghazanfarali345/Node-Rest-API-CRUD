@@ -1,0 +1,24 @@
+{
+  "name": "restful-api",
+  "version": "1.0.0",
+  "description": "(Building Shop APi)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "keywords": [
+    "Node",
+    "Restful",
+    "API"
+  ],
+  "author": "Ghazanfar Ali",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.11.13",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.7"
+  }
+}
