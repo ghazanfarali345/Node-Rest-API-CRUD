@@ -2,16 +2,64 @@ const express = require('express')
 const router = express.Router();
 const Product = require('../models/product')
 const mongoose = require('mongoose')
+const multer = require('multer');
+const product = require('../models/product');
+
+
+// only for storing image in folder without calidaction 
+// const upload = multer({ dest: 'uploads/' })
+
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/',)
+    },
+    //accepts bytes
+    filename: function (req, file, cb) {
+        // function Call after date toISOString() is not working in it
+        cb(null, new Date().toISOString + file.originalname)
+    }
+})
+const filterImage = (req, file, cb) => {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true)
+    }
+    else {
+        cb(null, false)
+    }
+}
+const upload = multer({
+    storage: storage,
+    limit: {
+        // accepts bytes
+        fileSize: 1024 * 1024 * 5 // 5 MB
+    },
+    filterImage
+
+})
+
+
 
 
 router.get('/', (req, res, next) => {
     Product.find()
+        .select('price name _id, productImage')
         .then(result => {
             console.log(result)
             if (result.length > 0) {
                 res.status('200').json({
                     message: 'success',
                     result
+                    // for showing extra information we can use map
+                    //  product : result.map(doc=>{
+                    //       return {
+                    //         name:doc.name,
+                    //         price:doc.price,
+                    //         method:'GET',
+                    //         url:'locahost/3000/products'
+                    //       }
+                    // })
                 })
             } else {
                 res.status(404).json('No entries found')
@@ -24,16 +72,14 @@ router.get('/', (req, res, next) => {
         })
 
 })
-router.post('/', (req, res, next) => {
-    // const newProduct = {
-    //     name: req.body.name,
-    //     price: req.body.price
-    // }
+router.post('/', upload.single('productImage'), (req, res, next) => {
+    console.log(req.file)
 
     const newProduct = new Product({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        price: req.body.price
+        price: req.body.price,
+        productImage: req.file.path
     });
     newProduct.save()
         .then(result => {
@@ -61,7 +107,7 @@ router.get('/:productId', (req, res, next) => {
 
                 res.status(200).json(result);
             } else {
-                res.status(500).json('No data found');
+                res.status(404).json('No data found');
             }
         })
         .catch(err => {
@@ -82,13 +128,11 @@ router.get('/:productId', (req, res, next) => {
 router.patch('/:productId', (req, res, next) => {
     const id = req.params.productId
     console.log('my id', id)
-    const updateOps = {
-        name: req.body.name,
-        price: req.body.price
+    const updateOps = {}
+    //pass propName and value to update
+    for (const ops of req.body) {
+        updateOps[ops.propName] = ops.value
     }
-    // for (const ops of req.body) {
-    //     updateOps[ops.propName] = ops.value
-    // }
     console.log(updateOps)
 
     Product.updateOne({ _id: id }, { $set: updateOps })
