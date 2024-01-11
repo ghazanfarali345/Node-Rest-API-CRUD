@@ -1,25 +1,38 @@
-name: Build & Deploy
+name: Node.js CI/CD to Digital Ocean
 
 on:
   push:
-    branches: [master]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy NodeJS app
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build # Replace with your build command if needed
+
+      - name: Deploy to Digital Ocean
+        uses: appleboy/ssh-action@master
         with:
           host: ${{secrets.BUDGETPIE_HOST_SSH_IP}} # IP address of the server you wish to ssh into
           key: ${{secrets.BUDGETPIE_SSH_PRIVATE_KEY}} # Private or public key of the server
           username: ${{ secrets.BUDGETPIE_HOST_SSH_USERNAME }} # User of the server you want to ssh into
 
           script: |
+            cd /var/www/   
             mkdir -p test 
             cd test 
-            git clone https://github.com/ghazanfarali345/Node-Rest-API-CRUD.git 
             echo 'Deployment successful to Digital Ocean'
