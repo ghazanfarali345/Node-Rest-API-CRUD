@@ -21,9 +21,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build
-        run: npm run build # Replace with your build command if needed
-
       - name: Deploy to Digital Ocean
         uses: appleboy/ssh-action@master
         with:
