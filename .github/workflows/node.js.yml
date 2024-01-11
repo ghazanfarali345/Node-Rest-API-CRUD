@@ -3,7 +3,7 @@ name: Node.js CI/CD to Digital Ocean
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
